@@ -2,6 +2,7 @@
 const { StreamingPlans } = require('../doremi/streaming');
 let zero = 0;
 const ten = 10;
+const UNDEFINED = 'undefined';
 
 const isoFormattedDateReturn = (date) => {
     const newDate = date.toISOString().split('T')[zero];
@@ -31,30 +32,31 @@ const subtractDays = (date, days) => {
 const addSubsc = (subscriptionType, subscriptionPlan, startSubscriptionDate, planList, renewalAmount) => {
     let planDetails =  StreamingPlans[subscriptionType];
     let month = planDetails[subscriptionPlan.trim()].month
-    if (startSubscriptionDate.date == 'NULL') {
-        console.log(`ADD_SUBSCRIPTION_FAILED INVALID_DATE`);
-        return renewalAmount;
-    }
 
-    const endDate = startSubscriptionDate.date === undefined ? 'Invalid date' : addMonths(startSubscriptionDate.date, month);
+    if (startSubscriptionDate.date == 'INVALID_DATE') {
+        console.log(`ADD_SUBSCRIPTION_FAILED INVALID_DATE`);
+        return {renewalAmount: renewalAmount, result: 'ADD_SUBSCRIPTION_FAILED INVALID_DATE'};
+    }
+    
+    const endDate = startSubscriptionDate.date ? addMonths(startSubscriptionDate.date, month) :  'Invalid date' ;
 
     let obj = {
         subscriptionType,
         subscriptionPlan,
         startDate:startSubscriptionDate.date,
-        endDate: endDate === 'Invalid date' ? undefined : subtractDays(endDate, ten),
+        endDate: endDate === 'Invalid date' ? UNDEFINED : subtractDays(endDate, ten),
     }
 
     let checkSub = planList.find(item=>item.subscriptionType.trim() === subscriptionType.trim())
     if (checkSub) {
         console.log(`ADD_SUBSCRIPTION_FAILED DUPLICATE_CATEGORY`);
-        return renewalAmount;
+        return {renewalAmount: renewalAmount, result: 'ADD_SUBSCRIPTION_FAILED DUPLICATE_CATEGORY'};
     } 
     if (!checkSub) {
         planList.push(obj);
         renewalAmount = renewalAmount  + planDetails[subscriptionPlan.trim()].amount
     }
-    return renewalAmount;
+    return {renewalAmount: renewalAmount, result: ''};
 }
 
 exports.addSubsc = addSubsc;

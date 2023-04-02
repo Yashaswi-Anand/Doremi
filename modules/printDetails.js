@@ -9,6 +9,7 @@ const printDetails = (planList, renewalAmount) => {
         console.log(`RENEWAL_REMINDER ${planList[i].subscriptionType}  ${planList[i].endDate}`);
     }
     console.log(`RENEWAL_AMOUNT ${renewalAmount}`);
+    return renewalAmount;
 }
 
 exports.printDetails = printDetails;
